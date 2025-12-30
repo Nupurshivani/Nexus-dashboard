@@ -223,7 +223,7 @@ import { AdminService, Order } from '../../core/services/admin.service';
 })
 export class OrdersComponent implements OnInit {
   orders: Order[] = [];
-  loading = true; // Start as true for initial load
+  loading = true;
   statusFilter = '';
   paymentFilter = '';
 

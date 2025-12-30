@@ -375,7 +375,7 @@ import { AdminService, User } from '../../core/services/admin.service';
 })
 export class UsersComponent implements OnInit {
   users: User[] = [];
-  loading = true; // Start as true for initial load
+  loading = true;
   saving = false;
 
   filters = {
