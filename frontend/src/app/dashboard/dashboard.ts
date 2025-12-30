@@ -292,6 +292,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   departmentData: { name: string; count: number; color: string }[] = [];
 
+  // Loading states
+  isLoadingStats = true;
+  isLoadingCharts = true;
+  isLoadingOrders = true;
+
   private revenueChart: Chart | null = null;
   private doughnutChart: Chart | null = null;
   private trafficChart: Chart | null = null;
@@ -311,15 +316,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadData(): void {
+    this.isLoadingStats = true;
+    this.isLoadingCharts = true;
+    this.isLoadingOrders = true;
+
     // Load stats
     this.adminService.getStats().subscribe({
       next: (response) => {
         if (response.success) {
           this.stats = response.data;
         }
+        this.isLoadingStats = false;
       },
       error: (err) => {
         console.error('Dashboard stats error:', err);
+        this.isLoadingStats = false;
       }
     });
 
@@ -330,6 +341,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           this.chartData = response.data;
           this.initCharts();
         }
+        this.isLoadingCharts = false;
+      },
+      error: () => {
+        this.isLoadingCharts = false;
       }
     });
 
@@ -354,6 +369,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         if (response.success) {
           this.recentOrders = response.data.orders;
         }
+        this.isLoadingOrders = false;
+      },
+      error: () => {
+        this.isLoadingOrders = false;
       }
     });
   }
