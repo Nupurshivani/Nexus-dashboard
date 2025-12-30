@@ -4,10 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { AuthService, User } from '../../core/services/auth.service';
 
 @Component({
-    selector: 'app-settings',
-    standalone: true,
-    imports: [CommonModule, FormsModule],
-    template: `
+  selector: 'app-settings',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
     <div class="animate-fade-in max-w-4xl">
       <!-- Page Header -->
       <div class="mb-8">
@@ -252,6 +252,14 @@ import { AuthService, User } from '../../core/services/auth.service';
 
             <div class="flex items-center justify-between p-4 bg-red-500/5 border border-red-500/20 rounded-xl">
               <div>
+                <p class="text-sm font-medium text-gray-100">Reset & Seed Database</p>
+                <p class="text-xs text-gray-500">Reset database and fill with sample data (Admin Only)</p>
+              </div>
+              <button (click)="seedDatabase()" class="btn btn-warning btn-sm">Reset DB</button>
+            </div>
+
+            <div class="flex items-center justify-between p-4 bg-red-500/5 border border-red-500/20 rounded-xl">
+              <div>
                 <p class="text-sm font-medium text-gray-100">Delete Account</p>
                 <p class="text-xs text-gray-500">Permanently delete your account and all data</p>
               </div>
@@ -264,60 +272,82 @@ import { AuthService, User } from '../../core/services/auth.service';
   `
 })
 export class SettingsComponent implements OnInit {
-    activeTab = 'profile';
+  activeTab = 'profile';
 
-    tabs = [
-        { id: 'profile', label: 'Profile' },
-        { id: 'security', label: 'Security' },
-        { id: 'preferences', label: 'Preferences' },
-        { id: 'danger', label: 'Danger Zone' }
-    ];
+  tabs = [
+    { id: 'profile', label: 'Profile' },
+    { id: 'security', label: 'Security' },
+    { id: 'preferences', label: 'Preferences' },
+    { id: 'danger', label: 'Danger Zone' }
+  ];
 
-    themes = [
-        { value: 'dark', label: 'Dark', icon: '🌙' },
-        { value: 'light', label: 'Light', icon: '☀️' },
-        { value: 'system', label: 'System', icon: '💻' }
-    ];
+  themes = [
+    { value: 'dark', label: 'Dark', icon: '🌙' },
+    { value: 'light', label: 'Light', icon: '☀️' },
+    { value: 'system', label: 'System', icon: '💻' }
+  ];
 
-    profile = {
-        name: '',
-        email: '',
-        phone: '',
-        department: 'engineering'
-    };
+  profile = {
+    name: '',
+    email: '',
+    phone: '',
+    department: 'engineering'
+  };
 
-    passwords = {
-        current: '',
-        new: '',
-        confirm: ''
-    };
+  passwords = {
+    current: '',
+    new: '',
+    confirm: ''
+  };
 
-    preferences = {
-        theme: 'dark',
-        language: 'en',
-        emailNotifications: true,
-        pushNotifications: false,
-        weeklyReports: true
-    };
+  preferences = {
+    theme: 'dark',
+    language: 'en',
+    emailNotifications: true,
+    pushNotifications: false,
+    weeklyReports: true
+  };
 
-    constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService, private http: import('@angular/common/http').HttpClient) { }
 
-    ngOnInit(): void {
-        const user = this.authService.currentUser;
-        if (user) {
-            this.profile.name = user.name;
-            this.profile.email = user.email;
-            this.profile.phone = user.phone || '';
-            this.profile.department = user.department || 'engineering';
-        }
+  ngOnInit(): void {
+    const user = this.authService.currentUser;
+    if (user) {
+      this.profile.name = user.name;
+      this.profile.email = user.email;
+      this.profile.phone = user.phone || '';
+      this.profile.department = user.department || 'engineering';
     }
+  }
 
-    getInitials(): string {
-        return this.profile.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
-    }
+  getInitials(): string {
+    return this.profile.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
+  }
 
-    saveProfile(): void {
-        // Would call API to save profile
-        console.log('Saving profile:', this.profile);
-    }
+  saveProfile(): void {
+    // Would call API to save profile
+    console.log('Saving profile:', this.profile);
+  }
+
+  seedDatabase(): void {
+    if (!confirm('Are you sure? This will DELETE ALL DATA and reset the database to sample data.')) return;
+
+    // Use 'any' to access private static prop if needed, or better, make it public in service. 
+    // Assuming API_URL is accessible or we hardcode /api since we used a proxy
+    const apiUrl = this.authService['API_URL'] || '/api';
+
+    this.http.post(`${apiUrl}/auth/seed`, {}, {
+      headers: { 'Authorization': `Bearer ${this.authService.token}` }
+    }).subscribe({
+      next: (res: any) => {
+        alert('Database seeded successfully! Please relogin with email: admin@dashboard.com password: admin123');
+        this.authService.logout();
+      },
+      error: (err) => {
+        console.error('Seed error:', err);
+        // If 403, maybe not an admin or DB not empty?
+        alert('Error seeding database: ' + (err.error?.msg || err.message));
+      }
+    });
+  }
 }

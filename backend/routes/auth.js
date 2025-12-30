@@ -257,4 +257,107 @@ router.get('/me', async (req, res) => {
   }
 });
 
+// @route   POST /api/auth/seed
+// @desc    Seed database with sample data
+// @access  Public (if empty) or Private/Admin
+router.post('/seed', async (req, res) => {
+  try {
+    const { key } = req.body;
+    const isProtected = await User.countDocuments() > 0;
+
+    // Security check: If users exist, require admin token or secret key
+    if (isProtected) {
+      if (key !== process.env.JWT_SECRET) {
+        // Try parsing token if key not provided
+        const authHeader = req.headers.authorization;
+        if (!authHeader) return res.status(403).json({ msg: 'Database already initialized' });
+
+        try {
+          const token = authHeader.split(' ')[1];
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+          const admin = await User.findById(decoded.id);
+          if (!admin || !['admin', 'superadmin'].includes(admin.role)) {
+            return res.status(403).json({ msg: 'Admin access required' });
+          }
+        } catch (e) {
+          return res.status(403).json({ msg: 'Invalid credentials' });
+        }
+      }
+    }
+
+    const Order = require('../models/Order');
+    const Notification = require('../models/Notification');
+    const DailyAnalytics = require('../models/Analytics');
+
+    // Clear existing data
+    await User.deleteMany({});
+    await Order.deleteMany({});
+    await Activity.deleteMany({});
+    await Notification.deleteMany({});
+    await DailyAnalytics.deleteMany({});
+
+    // Create admin user
+    const admin = await User.create({
+      name: 'Nupur Shivani',
+      email: 'admin@dashboard.com',
+      password: 'admin123',
+      role: 'superadmin',
+      status: 'active',
+      department: 'engineering',
+      phone: '+91 98765 43210',
+      location: { city: 'Mumbai', country: 'India' },
+      preferences: { theme: 'dark', notifications: true, language: 'en' }
+    });
+
+    // Create sample data (Subset of seed-admin.js for performance)
+    const users = [];
+    const departments = ['engineering', 'marketing', 'sales', 'support'];
+    for (let i = 0; i < 10; i++) {
+      users.push(await User.create({
+        name: `User ${i + 1}`,
+        email: `user${i + 1}@example.com`,
+        password: 'user123',
+        role: 'user',
+        department: departments[i % departments.length],
+        status: 'active'
+      }));
+    }
+
+    // Sample Orders
+    const orderStatuses = ['pending', 'processing', 'delivered'];
+    for (let i = 0; i < 20; i++) {
+      await Order.create({
+        orderNumber: `ORD-${1000 + i}`,
+        customer: { name: users[i % users.length].name, email: users[i % users.length].email },
+        total: Math.floor(Math.random() * 5000) + 500,
+        status: orderStatuses[i % 3],
+        paymentStatus: 'completed',
+        createdAt: new Date(Date.now() - Math.random() * 86400000 * 7)
+      });
+    }
+
+    // Analytics
+    for (let i = 7; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      date.setHours(0, 0, 0, 0);
+      await DailyAnalytics.create({
+        date,
+        users: { newSignups: Math.floor(Math.random() * 10), activeUsers: 50 + i },
+        revenue: { total: Math.floor(Math.random() * 20000), orders: 5 + i },
+        traffic: { pageViews: 100 + i * 10, uniqueVisitors: 50 + i * 5 },
+        conversions: { signups: 5, purchases: 2, downloads: 10 },
+        deviceBreakdown: { desktop: 60, mobile: 30, tablet: 10 },
+        browserBreakdown: { chrome: 70, safari: 20, firefox: 10 }
+      });
+    }
+
+    res.json({ success: true, msg: 'Database seeded successfully', admin: { email: 'admin@dashboard.com', password: 'admin123' } });
+
+  } catch (error) {
+    console.error('SEED ERROR:', error);
+    res.status(500).json({ msg: 'Error seeding database' });
+  }
+});
+
 module.exports = router;

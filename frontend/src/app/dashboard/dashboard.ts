@@ -317,6 +317,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         if (response.success) {
           this.stats = response.data;
         }
+      },
+      error: (err) => {
+        console.error('Dashboard stats error:', err);
       }
     });
 

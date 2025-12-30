@@ -4,10 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { AdminService, User } from '../../core/services/admin.service';
 
 @Component({
-    selector: 'app-users',
-    standalone: true,
-    imports: [CommonModule, FormsModule],
-    template: `
+  selector: 'app-users',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
     <div class="animate-fade-in">
       <!-- Page Header -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -107,7 +107,7 @@ import { AdminService, User } from '../../core/services/admin.service';
                 *ngFor="let user of users; let i = index"
                 class="border-b border-white/5 hover:bg-dark-surface-elevated transition-colors"
                 [class.animate-fade-in]="true"
-                [style.animation-delay.ms]="i * 50"
+                [style.animation-delay]="(i * 50) + 'ms'"
               >
                 <!-- User Info -->
                 <td class="px-4 py-4">
@@ -374,194 +374,196 @@ import { AdminService, User } from '../../core/services/admin.service';
   `
 })
 export class UsersComponent implements OnInit {
-    users: User[] = [];
-    loading = false;
-    saving = false;
+  users: User[] = [];
+  loading = false;
+  saving = false;
 
-    filters = {
-        search: '',
-        role: '',
-        status: '',
-        department: ''
-    };
+  filters = {
+    search: '',
+    role: '',
+    status: '',
+    department: ''
+  };
 
-    pagination = {
-        page: 1,
-        limit: 10,
-        total: 0,
-        pages: 0
-    };
+  pagination = {
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 0
+  };
 
-    showModal = false;
-    showDeleteModal = false;
-    editingUser: User | null = null;
-    userToDelete: User | null = null;
+  showModal = false;
+  showDeleteModal = false;
+  editingUser: User | null = null;
+  userToDelete: User | null = null;
 
-    formData = {
-        name: '',
-        email: '',
-        password: '',
-        role: 'user',
-        department: 'engineering',
-        status: 'active'
-    };
+  formData = {
+    name: '',
+    email: '',
+    password: '',
+    role: 'user',
+    department: 'engineering',
+    status: 'active'
+  };
 
-    private searchTimeout: any;
-    Math = Math; // For template
+  private searchTimeout: any;
+  Math = Math; // For template
 
-    constructor(private adminService: AdminService) { }
+  constructor(private adminService: AdminService) { }
 
-    ngOnInit(): void {
-        this.loadUsers();
-    }
+  ngOnInit(): void {
+    this.loadUsers();
+  }
 
-    loadUsers(): void {
-        this.loading = true;
-        this.adminService.getUsers({
-            page: this.pagination.page,
-            limit: this.pagination.limit,
-            search: this.filters.search,
-            role: this.filters.role,
-            status: this.filters.status,
-            department: this.filters.department
-        }).subscribe({
-            next: (response) => {
-                if (response.success && response.data.users) {
-                    this.users = response.data.users;
-                    this.pagination = {
-                        ...this.pagination,
-                        ...response.data.pagination
-                    };
-                }
-                this.loading = false;
-            },
-            error: () => {
-                this.loading = false;
-            }
-        });
-    }
-
-    onSearch(): void {
-        clearTimeout(this.searchTimeout);
-        this.searchTimeout = setTimeout(() => {
-            this.pagination.page = 1;
-            this.loadUsers();
-        }, 300);
-    }
-
-    applyFilters(): void {
-        this.pagination.page = 1;
-        this.loadUsers();
-    }
-
-    goToPage(page: number): void {
-        if (page < 1 || page > this.pagination.pages) return;
-        this.pagination.page = page;
-        this.loadUsers();
-    }
-
-    getPageNumbers(): number[] {
-        const pages: number[] = [];
-        const start = Math.max(1, this.pagination.page - 2);
-        const end = Math.min(this.pagination.pages, start + 4);
-        for (let i = start; i <= end; i++) {
-            pages.push(i);
+  loadUsers(): void {
+    this.loading = true;
+    this.adminService.getUsers({
+      page: this.pagination.page,
+      limit: this.pagination.limit,
+      search: this.filters.search,
+      role: this.filters.role,
+      status: this.filters.status,
+      department: this.filters.department
+    }).subscribe({
+      next: (response) => {
+        console.log('UsersComponent loaded:', response);
+        if (response.success && response.data.users) {
+          this.users = response.data.users;
+          this.pagination = {
+            ...this.pagination,
+            ...response.data.pagination
+          };
         }
-        return pages;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('UsersComponent error:', err);
+        this.loading = false;
+      }
+    });
+  }
+
+  onSearch(): void {
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.pagination.page = 1;
+      this.loadUsers();
+    }, 300);
+  }
+
+  applyFilters(): void {
+    this.pagination.page = 1;
+    this.loadUsers();
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.pagination.pages) return;
+    this.pagination.page = page;
+    this.loadUsers();
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const start = Math.max(1, this.pagination.page - 2);
+    const end = Math.min(this.pagination.pages, start + 4);
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
     }
+    return pages;
+  }
 
-    getInitials(name: string): string {
-        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    }
+  getInitials(name: string): string {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  }
 
-    formatDate(date: Date | undefined): string {
-        if (!date) return 'Never';
-        const d = new Date(date);
-        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
+  formatDate(date: Date | undefined): string {
+    if (!date) return 'Never';
+    const d = new Date(date);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
 
-    openCreateModal(): void {
-        this.editingUser = null;
-        this.formData = {
-            name: '',
-            email: '',
-            password: '',
-            role: 'user',
-            department: 'engineering',
-            status: 'active'
-        };
-        this.showModal = true;
-    }
+  openCreateModal(): void {
+    this.editingUser = null;
+    this.formData = {
+      name: '',
+      email: '',
+      password: '',
+      role: 'user',
+      department: 'engineering',
+      status: 'active'
+    };
+    this.showModal = true;
+  }
 
-    editUser(user: User): void {
-        this.editingUser = user;
-        this.formData = {
-            name: user.name,
-            email: user.email,
-            password: '',
-            role: user.role,
-            department: user.department || 'engineering',
-            status: user.status
-        };
-        this.showModal = true;
-    }
+  editUser(user: User): void {
+    this.editingUser = user;
+    this.formData = {
+      name: user.name,
+      email: user.email,
+      password: '',
+      role: user.role,
+      department: user.department || 'engineering',
+      status: user.status
+    };
+    this.showModal = true;
+  }
 
-    closeModal(): void {
-        this.showModal = false;
-        this.editingUser = null;
-    }
+  closeModal(): void {
+    this.showModal = false;
+    this.editingUser = null;
+  }
 
-    saveUser(): void {
-        this.saving = true;
+  saveUser(): void {
+    this.saving = true;
 
-        if (this.editingUser) {
-            this.adminService.updateUser(this.editingUser._id, this.formData).subscribe({
-                next: () => {
-                    this.saving = false;
-                    this.closeModal();
-                    this.loadUsers();
-                },
-                error: () => {
-                    this.saving = false;
-                }
-            });
-        } else {
-            this.adminService.createUser(this.formData as any).subscribe({
-                next: () => {
-                    this.saving = false;
-                    this.closeModal();
-                    this.loadUsers();
-                },
-                error: () => {
-                    this.saving = false;
-                }
-            });
+    if (this.editingUser) {
+      this.adminService.updateUser(this.editingUser._id, this.formData).subscribe({
+        next: () => {
+          this.saving = false;
+          this.closeModal();
+          this.loadUsers();
+        },
+        error: () => {
+          this.saving = false;
         }
+      });
+    } else {
+      this.adminService.createUser(this.formData as any).subscribe({
+        next: () => {
+          this.saving = false;
+          this.closeModal();
+          this.loadUsers();
+        },
+        error: () => {
+          this.saving = false;
+        }
+      });
     }
+  }
 
-    toggleStatus(user: User): void {
-        const newStatus = user.status === 'active' ? 'inactive' : 'active';
-        this.adminService.updateUserStatus(user._id, newStatus).subscribe({
-            next: () => {
-                user.status = newStatus;
-            }
-        });
-    }
+  toggleStatus(user: User): void {
+    const newStatus = user.status === 'active' ? 'inactive' : 'active';
+    this.adminService.updateUserStatus(user._id, newStatus).subscribe({
+      next: () => {
+        user.status = newStatus;
+      }
+    });
+  }
 
-    confirmDelete(user: User): void {
-        this.userToDelete = user;
-        this.showDeleteModal = true;
-    }
+  confirmDelete(user: User): void {
+    this.userToDelete = user;
+    this.showDeleteModal = true;
+  }
 
-    deleteUser(): void {
-        if (!this.userToDelete) return;
+  deleteUser(): void {
+    if (!this.userToDelete) return;
 
-        this.adminService.deleteUser(this.userToDelete._id).subscribe({
-            next: () => {
-                this.showDeleteModal = false;
-                this.userToDelete = null;
-                this.loadUsers();
-            }
-        });
-    }
+    this.adminService.deleteUser(this.userToDelete._id).subscribe({
+      next: () => {
+        this.showDeleteModal = false;
+        this.userToDelete = null;
+        this.loadUsers();
+      }
+    });
+  }
 }
