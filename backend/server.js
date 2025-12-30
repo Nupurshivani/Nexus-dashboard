@@ -107,6 +107,15 @@ mongoose.connection.on('disconnected', () => {
   console.log('MongoDB disconnected');
 });
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    msg: 'Admin Dashboard API is running',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({

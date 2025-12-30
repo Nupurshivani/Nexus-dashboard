@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: '/api'
+    apiUrl: 'https://nexus-dashboard-lemon.vercel.app/api'
 };
