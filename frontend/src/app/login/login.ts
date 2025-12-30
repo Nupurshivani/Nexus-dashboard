@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -241,7 +242,7 @@ export class LoginComponent {
     this.errorMessage = '';
     this.isSubmitting = true;
 
-    this.http.post<any>('/api/auth/login', {
+    this.http.post<any>(`${environment.apiUrl}/auth/login`, {
       email: this.email,
       password: this.password
     }).subscribe({

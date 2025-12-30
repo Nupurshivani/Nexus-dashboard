@@ -115,11 +115,13 @@ export interface Notification {
     createdAt: Date;
 }
 
+import { environment } from '../../../environments/environment';
+
 @Injectable({
     providedIn: 'root'
 })
 export class AdminService {
-    private readonly API_URL = '/api/admin';
+    private readonly API_URL = `${environment.apiUrl}/admin`;
 
     private statsSubject = new BehaviorSubject<DashboardStats | null>(null);
     private notificationsSubject = new BehaviorSubject<Notification[]>([]);

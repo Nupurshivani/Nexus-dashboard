@@ -28,11 +28,13 @@ export interface AuthResponse {
     user: User;
 }
 
+import { environment } from '../../../environments/environment';
+
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
-    private readonly API_URL = '/api';
+    private readonly API_URL = environment.apiUrl;
     private currentUserSubject = new BehaviorSubject<User | null>(null);
     private tokenSubject = new BehaviorSubject<string | null>(null);
 
