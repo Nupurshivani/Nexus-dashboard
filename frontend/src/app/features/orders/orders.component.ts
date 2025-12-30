@@ -4,10 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { AdminService, Order } from '../../core/services/admin.service';
 
 @Component({
-    selector: 'app-orders',
-    standalone: true,
-    imports: [CommonModule, FormsModule],
-    template: `
+  selector: 'app-orders',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
     <div class="animate-fade-in">
       <!-- Page Header -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -222,69 +222,69 @@ import { AdminService, Order } from '../../core/services/admin.service';
   `
 })
 export class OrdersComponent implements OnInit {
-    orders: Order[] = [];
-    loading = false;
-    statusFilter = '';
-    paymentFilter = '';
+  orders: Order[] = [];
+  loading = true; // Start as true for initial load
+  statusFilter = '';
+  paymentFilter = '';
 
-    pendingCount = 0;
-    shippedCount = 0;
-    deliveredCount = 0;
-    cancelledCount = 0;
+  pendingCount = 0;
+  shippedCount = 0;
+  deliveredCount = 0;
+  cancelledCount = 0;
 
-    pagination = {
-        page: 1,
-        limit: 10,
-        total: 0,
-        pages: 0
-    };
+  pagination = {
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 0
+  };
 
-    constructor(private adminService: AdminService) { }
+  constructor(private adminService: AdminService) { }
 
-    ngOnInit(): void {
-        this.loadOrders();
-    }
+  ngOnInit(): void {
+    this.loadOrders();
+  }
 
-    loadOrders(): void {
-        this.loading = true;
-        this.adminService.getOrders({
-            page: this.pagination.page,
-            limit: this.pagination.limit,
-            status: this.statusFilter,
-            paymentStatus: this.paymentFilter
-        }).subscribe({
-            next: (response) => {
-                if (response.success && response.data.orders) {
-                    this.orders = response.data.orders;
-                    this.pagination = { ...this.pagination, ...response.data.pagination };
-                    this.calculateCounts();
-                }
-                this.loading = false;
-            },
-            error: () => {
-                this.loading = false;
-            }
-        });
-    }
+  loadOrders(): void {
+    this.loading = true;
+    this.adminService.getOrders({
+      page: this.pagination.page,
+      limit: this.pagination.limit,
+      status: this.statusFilter,
+      paymentStatus: this.paymentFilter
+    }).subscribe({
+      next: (response) => {
+        if (response.success && response.data.orders) {
+          this.orders = response.data.orders;
+          this.pagination = { ...this.pagination, ...response.data.pagination };
+          this.calculateCounts();
+        }
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
+  }
 
-    private calculateCounts(): void {
-        this.pendingCount = this.orders.filter(o => o.status === 'pending').length;
-        this.shippedCount = this.orders.filter(o => o.status === 'shipped').length;
-        this.deliveredCount = this.orders.filter(o => o.status === 'delivered').length;
-        this.cancelledCount = this.orders.filter(o => o.status === 'cancelled').length;
-    }
+  private calculateCounts(): void {
+    this.pendingCount = this.orders.filter(o => o.status === 'pending').length;
+    this.shippedCount = this.orders.filter(o => o.status === 'shipped').length;
+    this.deliveredCount = this.orders.filter(o => o.status === 'delivered').length;
+    this.cancelledCount = this.orders.filter(o => o.status === 'cancelled').length;
+  }
 
-    goToPage(page: number): void {
-        if (page < 1 || page > this.pagination.pages) return;
-        this.pagination.page = page;
-        this.loadOrders();
-    }
+  goToPage(page: number): void {
+    if (page < 1 || page > this.pagination.pages) return;
+    this.pagination.page = page;
+    this.loadOrders();
+  }
 
-    formatDate(date: Date): string {
-        return new Date(date).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-        });
-    }
+  formatDate(date: Date): string {
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
 }
