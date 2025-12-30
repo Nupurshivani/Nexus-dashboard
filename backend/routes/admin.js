@@ -332,7 +332,8 @@ router.get('/users', auth, requireAdmin, async (req, res) => {
       .sort(sort)
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
-      .select('-password -refreshToken');
+      .select('-password -refreshToken -__v')
+      .lean(); // Use lean for faster queries
 
     console.log(`Found ${users.length} users. Total: ${total}`);
 
@@ -592,7 +593,9 @@ router.get('/activities', auth, requireAdmin, async (req, res) => {
       .populate('user', 'name email avatar')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .select('-__v')
+      .lean();
 
     res.json({
       success: true,
@@ -634,7 +637,9 @@ router.get('/orders', auth, requireAdmin, async (req, res) => {
     const orders = await Order.find(query)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .select('-__v')
+      .lean();
 
     res.json({
       success: true,
@@ -708,7 +713,9 @@ router.get('/orders/recent', auth, requireAdmin, async (req, res) => {
 
     const orders = await Order.find()
       .sort({ createdAt: -1 })
-      .limit(5);
+      .limit(5)
+      .select('-__v')
+      .lean();
 
     res.json({
       success: true,
