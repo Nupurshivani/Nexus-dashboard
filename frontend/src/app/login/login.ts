@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment';
+import { AuthService } from '../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -228,7 +228,8 @@ export class LoginComponent {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     // Redirect if already logged in
     if (localStorage.getItem('token')) {
@@ -242,24 +243,15 @@ export class LoginComponent {
     this.errorMessage = '';
     this.isSubmitting = true;
 
-    this.http.post<any>(`${environment.apiUrl}/auth/login`, {
-      email: this.email,
-      password: this.password
-    }).subscribe({
+    this.authService.login(this.email, this.password).subscribe({
       next: (res) => {
         this.isSubmitting = false;
-        if (res.success && res.token) {
-          localStorage.setItem('token', res.token);
-          localStorage.setItem('user', JSON.stringify(res.user));
-          if (res.refreshToken) {
-            localStorage.setItem('refreshToken', res.refreshToken);
-          }
-          this.router.navigate(['/dashboard']);
-        }
+        // Auth service already handles token storage
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.errorMessage = err.error?.msg || 'Invalid email or password';
+        this.errorMessage = err.error?.msg || err.msg || 'Invalid email or password';
       }
     });
   }

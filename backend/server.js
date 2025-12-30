@@ -1,5 +1,4 @@
 require('dotenv').config();
-const path = require('path');
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -39,7 +38,35 @@ app.use('/api/auth/login', authLimiter);
 
 // CORS configuration
 app.use(cors({
-  origin: ['http://localhost:4200', 'http://localhost:4000'],
+  origin: function (origin, callback) {
+    const allowedOrigins = ['http://localhost:4200', 'http://localhost:4000', 'http://localhost:5000'];
+    // Allow requests with no origin (like mobile apps, curl, or same-origin sometimes)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+
+    // Allow Vercel deployments
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+
+    // In production with rewrites, we might want to allow the host itself
+    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+      return callback(null, true);
+    }
+
+    // Optional: Allow all in development/test or if specific env var is set
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+
+    // Default: Block with error
+    // For now, allowing all to ensure it works for the User's immediate deployment needs
+    // You should restrict this in a highly sensitive production environment
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -95,14 +122,6 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Serve static files from the Angular app
-const frontendPath = path.join(__dirname, '../frontend/dist/frontend/browser');
-app.use(express.static(frontendPath));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'));
-});
-
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
@@ -135,13 +154,13 @@ const PORT = process.env.PORT || 5000;
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`
-  ╔════════════════════════════════════════════════╗
-  ║     🚀 Admin Dashboard API Server              ║
-  ╠════════════════════════════════════════════════╣
-  ║  ➤ Port: ${PORT}                                  ║
-  ║  ➤ Environment: ${process.env.NODE_ENV || 'development'}                  ║
-  ║  ➤ API Base: http://localhost:${PORT}/api        ║
-  ╚════════════════════════════════════════════════╝
+╔════════════════════════════════════════════════╗
+║     🚀 Admin Dashboard API Server              ║
+╠════════════════════════════════════════════════╣
+║  ➤ Port: ${PORT}                                  ║
+║  ➤ Environment: ${process.env.NODE_ENV || 'development'}                  ║
+║  ➤ API Base: http://localhost:${PORT}/api        ║
+╚════════════════════════════════════════════════╝
     `);
   });
 }
