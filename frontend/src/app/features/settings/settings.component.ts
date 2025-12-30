@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -308,7 +309,7 @@ export class SettingsComponent implements OnInit {
     weeklyReports: true
   };
 
-  constructor(private authService: AuthService, private http: import('@angular/common/http').HttpClient) { }
+  constructor(private authService: AuthService, private http: HttpClient) { }
 
   ngOnInit(): void {
     const user = this.authService.currentUser;
