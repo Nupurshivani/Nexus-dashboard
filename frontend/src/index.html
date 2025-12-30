@@ -2,12 +2,93 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Frontend</title>
+  <title>Nexus Admin Dashboard | Analytics & Management Platform</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Nexus Admin Dashboard - A modern, production-ready analytics and management platform built with the MEAN stack. Real-time data visualization, user management, and comprehensive reporting.">
+  <meta name="keywords" content="admin dashboard, analytics, MEAN stack, Angular, MongoDB, real-time charts, user management">
+  <meta name="author" content="Shivam Kumar">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph / Social Media -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Nexus Admin Dashboard">
+  <meta property="og:description" content="Modern analytics and management platform with real-time data visualization">
+  <meta property="og:image" content="/assets/og-image.png">
+  
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="msapplication-TileColor" content="#0a0a0f">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%238b5cf6'/%3E%3Cstop offset='100%25' style='stop-color:%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M8 12h16M8 16h12M8 20h8' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+  
+  <!-- Preconnect to external resources -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Prevent FOUC -->
+  <style>
+    html { 
+      background: #0a0a0f; 
+    }
+    .initial-loader {
+      position: fixed;
+      inset: 0;
+      background: #0a0a0f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .loader-logo {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 24px;
+      animation: pulse 2s infinite;
+    }
+    .loader-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #8b5cf6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loader-text {
+      margin-top: 16px;
+      color: #6b7280;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+  </style>
 </head>
 <body>
-  <app-root></app-root>
+  <app-root>
+    <div class="initial-loader">
+      <svg class="loader-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#8b5cf6"/>
+            <stop offset="100%" style="stop-color:#06b6d4"/>
+          </linearGradient>
+        </defs>
+        <rect width="64" height="64" rx="16" fill="url(#logo-gradient)"/>
+        <path d="M16 24h32M16 32h24M16 40h16" stroke="white" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+      <div class="loader-spinner"></div>
+      <div class="loader-text">Loading Nexus Dashboard...</div>
+    </div>
+  </app-root>
 </body>
 </html>
