@@ -81,13 +81,12 @@ The whole thing is designed with a purple/cyan color scheme that looks pretty sl
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/yourusername/admin-dashboard.git
-cd admin-dashboard
+git clone https://github.com/Nupurshivani/Nexus-dashboard
+cd Nexus-dashboard
 
 # Backend
 cd backend
 npm install
-cp .env.example .env  # add your MongoDB URI and JWT secret
 
 # Frontend
 cd ../frontend
@@ -98,9 +97,9 @@ npm install
 
 Create `backend/.env`:
 ```env
-MONGO_URI=mongodb://localhost:27017/admin_dashboard
-JWT_SECRET=your_super_secret_key_here
-JWT_REFRESH_SECRET=another_secret_for_refresh_tokens
+PORT=5000
+MONGO_URI=mongodb+srv://dumb:dumb@cluster0.pnk1nro.mongodb.net/?appName=Cluster0
+JWT_SECRET=nupur
 ```
 
 ### 3. Seed Demo Data

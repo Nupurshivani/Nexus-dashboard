@@ -90,7 +90,7 @@ import { AdminService, User } from '../../core/services/admin.service';
 
       <!-- Users Table -->
       <div class="card">
-        <div class="overflow-x-auto">
+        <div *ngIf="!loading" class="overflow-x-auto">
           <table class="w-full">
             <thead>
               <tr class="border-b border-white/5">
